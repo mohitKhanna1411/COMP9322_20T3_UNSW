@@ -1,0 +1,349 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "COMP9322 Assignment 2: Dentist appointment chatbot service",
+    "version": "1.0.0",
+    "title": "Timeslot Information",
+    "contact": {
+      "email": "z5266543@ad.unsw.edu.au"
+    }
+  },
+  "basePath": "/v1",
+  "tags": [
+    {
+      "name": "Timeslots",
+      "description": "Timeslots of the dentists of the dental clinic"
+    }
+  ],
+  "paths": {
+    "/timeslots/{dentistName}": {
+      "get": {
+        "tags": [
+          "Timeslots"
+        ],
+        "summary": "Getting available timeslots of a dentist by dentist's name",
+        "description": "This endpoint is used to get available timeslot of a dentist by name from a dental clinic",
+        "operationId": "getTimeslotByDentistName",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dentistName",
+            "type": "string",
+            "description": "Name of the dentist to know the available timeslots",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "Dr. Tom is avaiable during Mon 9-10am, Mon 1-2pm, Tue 3-4pm, Fri 9-10am and Fri 4-5pm",
+                      "description": "Custom message"
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/Success"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid",
+            "schema": {
+              "$ref": "#/definitions/Invalid"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "We dont have any information for Dr. Thomas. Please choose from the list of dentists."
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/NotFound"
+                }
+              ]
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/timeslots/{timeslot}/dentist/{dentistName}/cancel": {
+      "put": {
+        "tags": [
+          "Timeslots"
+        ],
+        "summary": "Cancel appointment by timeslot and dentistname",
+        "description": "This endpoint is used to update appointment of a dentist by name and timeslot",
+        "operationId": "cancelAppointment",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "timeslot",
+            "type": "string",
+            "description": "Timeslot of the dentist to update the appointment",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "dentistName",
+            "type": "string",
+            "description": "Name of the dentist to update the appointment",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "You have successfully cancelled 9-10am with Dr. Lilly.",
+                      "description": "Custom message"
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/Success"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid",
+            "schema": {
+              "$ref": "#/definitions/Invalid"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "We dont have any information for Dr. Thomas. Please choose from the list of dentists."
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/NotFound"
+                }
+              ]
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/timeslots/{timeslot}/dentist/{dentistName}/book": {
+      "put": {
+        "tags": [
+          "Timeslots"
+        ],
+        "summary": "Book appointment by timeslot and dentistname",
+        "description": "This endpoint is used to update appointment of a dentist by name and timeslot",
+        "operationId": "bookAppointment",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "timeslot",
+            "type": "string",
+            "description": "Timeslot of the dentist to update the appointment",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "dentistName",
+            "type": "string",
+            "description": "Name of the dentist to update the appointment",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "You have successfully booked 9-10am with Dr. Lilly.",
+                      "description": "Custom message"
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/Success"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid",
+            "schema": {
+              "$ref": "#/definitions/Invalid"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "We dont have any information for Dr. Thomas. Please choose from the list of dentists."
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/NotFound"
+                }
+              ]
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "Auth-Token",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "Success": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 200,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Success!",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    },
+    "Invalid": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 400,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Error! Invalid",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    },
+    "Unauthorized": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 401,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Error! Unauthorized",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    },
+    "NotFound": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 404,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Error! Not Found",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    }
+  }
+}

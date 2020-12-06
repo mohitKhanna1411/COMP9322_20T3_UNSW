@@ -1,0 +1,157 @@
+swagger: "2.0"
+info:
+  description: "COMP9322 Assignment 2: Dentist appointment chatbot service"
+  version: "1.0.0"
+  title: "Dentist Information"
+  contact:
+    email: "z5266543@ad.unsw.edu.au"
+host: "127.0.0.1:5000"
+basePath: "/v1"
+tags:
+  - name: "Information"
+schemes:
+  - "http"
+  - "https"
+paths:
+  /dentists:
+    get:
+      tags:
+        - "Information"
+      summary: "Listing all the dentists"
+      description: "This endpoint is used to get all dentists from a dental clinic"
+      operationId: "listDentist"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - type: "object"
+                properties:
+                  result:
+                    type: "string"
+                    example: "Available dentists are Tom, Harry, Bob."
+                    description: "custom message"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+  /dentists/{dentistName}:
+    get:
+      tags:
+        - "Information"
+      summary: "Getting details of a dentist by dentist's name"
+      description: "This endpoint is used to get dentist by name from a dental clinic"
+      operationId: "getDentistByName"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "dentistName"
+          type: "string"
+          description: "Name of the dentist that needs to be fetched"
+          required: true
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - type: "object"
+                properties:
+                  result:
+                    type: "string"
+                    example: "Dr. Tom is located at Kellyville and specializes in Paediatric Dentistry"
+                    description: "custom message"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Not Found"
+          schema:
+            allOf:
+              - type: "object"
+                properties:
+                  result:
+                    type: "string"
+                    example: "Sorry! We dont have any information for Dr. Thomas. Please choose from the list of dentists."
+                    description: "custom message"
+              - $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  Success:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 200
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Success!"
+            description: "Custom message"
+
+  Invalid:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 400
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Invalid"
+            description: "Custom message"
+  Unauthorized:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 401
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Unauthorized"
+            description: "Custom message"
+  NotFound:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 404
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Not Found"
+            description: "Custom message"

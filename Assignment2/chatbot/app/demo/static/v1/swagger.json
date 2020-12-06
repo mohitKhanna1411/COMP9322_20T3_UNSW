@@ -1,0 +1,148 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "COMP9322 Assignment 2: Dentist appointment chatbot service",
+    "version": "1.0.0",
+    "title": "ChatBot Service",
+    "contact": {
+      "email": "z5266543@ad.unsw.edu.au"
+    }
+  },
+  "basePath": "/v1",
+  "tags": [
+    {
+      "name": "ChatBot"
+    }
+  ],
+  "paths": {
+    "/ask": {
+      "get": {
+        "tags": [
+          "ChatBot"
+        ],
+        "summary": "ask me anything",
+        "description": "This endpoint is used to chat with the chatbot",
+        "operationId": "chat",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/AskResponse"
+                },
+                {
+                  "$ref": "#/definitions/Success"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "NotFound",
+            "schema": {
+              "$ref": "#/definitions/NotFound"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Unauthorized"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AskResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "string",
+          "format": "string",
+          "example": "Hi Human!",
+          "description": "response from the chatbot"
+        },
+        "query": {
+          "type": "string",
+          "example": "Hi Bot!",
+          "description": "query of the client"
+        }
+      }
+    },
+    "Success": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 200,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Success!",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    },
+    "Unauthorized": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 401,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Error! Unauthorized",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    },
+    "NotFound": {
+      "type": "object",
+      "properties": {
+        "api_response": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32",
+              "example": 404,
+              "description": "HTTP status code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Error! Not Found",
+              "description": "Custom message"
+            }
+          }
+        }
+      }
+    }
+  }
+}

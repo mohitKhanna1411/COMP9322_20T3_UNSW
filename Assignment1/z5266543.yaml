@@ -1,0 +1,963 @@
+swagger: "2.0"
+info:
+  description: "COMP9322 Assignment 1: Documentation of RESTful service that effectively manage a coffee order processing logic"
+  version: "1.0.0"
+  title: "Coffee Store"
+  contact:
+    email: "z5266543@ad.unsw.edu.au"
+host: "127.0.0.1:5000"
+basePath: "/v1"
+tags:
+  - name: "Menu"
+    description: "Menu of the coffee shop"
+  - name: "Order"
+    description: "Access to Coffee shop orders"
+  - name: "Payment"
+    description: "Access to Coffee shop payments"
+    externalDocs:
+      description: "Find out more about our store"
+      url: "http://swagger.io"
+schemes:
+  - "http"
+  - "https"
+paths:
+  /items:
+    get:
+      tags:
+        - "Menu"
+      summary: "Listing types of coffees & Additions"
+      description: "This endpoint is used to get all the items in the menu of the coffee shop"
+      operationId: "listItems"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "offset"
+          type: "integer"
+          description: "The number of items to skip before starting to collect the result set."
+          minimum: 0
+          default: 0
+        - in: "query"
+          name: "limit"
+          type: "integer"
+          minimum: 0
+          maximum: 100
+          default: 20
+          description: "The number of items to return."
+        - in: "query"
+          name: "inStock"
+          type: "boolean"
+          default: True
+          description: "In stock items."
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/ListItems"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+  /items/{itemsId}:
+    get:
+      tags:
+        - "Menu"
+      summary: "Getting details of types of coffees & Additions by Id"
+      description: "This endpoint is used to get item by Id from the menu of the coffee shop"
+      operationId: "getItemById"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "itemsId"
+          type: "integer"
+          description: "Id of the item that needs to be fetched"
+          required: true
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/Item"
+              - type: "object"
+                properties:
+                  unit_price:
+                    type: "number"
+                    format: "float"
+                    example: 5.75
+                  expiry_date:
+                    type: "string"
+                    format: "date"
+                    example: "2021-10-09"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Not Found"
+          schema:
+            $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+  /orders:
+    post:
+      tags:
+        - "Order"
+      summary: "Creating Order"
+      description: "This endpoint is used to create an order for the coffee shop"
+      operationId: "placeOrder"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "order placed for purchasing the coffee"
+          required: true
+          schema:
+            $ref: "#/definitions/DetailedOrder"
+      responses:
+        "201":
+          description: "Order Created"
+          schema:
+            allOf:
+              - $ref: "#/definitions/DetailedOrder"
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          description: "relation"
+                    example:
+                      - href: "/orders"
+                        rel: "self"
+                      - href: "/payments"
+                        rel: "next"
+                      - href: "/orders/10001"
+                        rel: "details"
+              - $ref: "#/definitions/Created"
+        "400":
+          description: "Invalid Order"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+    get:
+      tags:
+        - "Order"
+      summary: "Listing Orders"
+      description: "This endpoint is used to list all the orders of the coffee shop with filters"
+      operationId: "ListOrders"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "offset"
+          type: "integer"
+          description: "The number of items to skip before starting to collect the result set."
+          minimum: 0
+          default: 0
+        - in: "query"
+          name: "limit"
+          type: "integer"
+          minimum: 0
+          maximum: 100
+          default: 20
+          description: "The number of items to return."
+        - in: "query"
+          name: "status"
+          type: "string"
+          enum:
+            - "open"
+            - "processing"
+            - "ready"
+            - "cancelled"
+        - in: "query"
+          name: "sortByDateDesc"
+          type: "boolean"
+          default: True
+        - in: "query"
+          name: "complete"
+          type: "boolean"
+          default: False
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/ListOrders"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid Order"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+  /orders/{orderId}:
+    get:
+      tags:
+        - "Order"
+      summary: "Getting Order Details by Id"
+      description: "This endpoint is used to get order by Id from all the orders of the coffee shop"
+      operationId: "getOrderById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          description: "ID of order that needs to be fetched"
+          required: true
+          type: "integer"
+          default: 101
+          minimum: 1
+          format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/DetailedOrder"
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          description: "relation"
+                    example:
+                      - href: "orders/10001"
+                        rel: "self"
+                      - href: "payments/10001"
+                        rel: "next"
+
+              - $ref: "#/definitions/Created"
+        "400":
+          description: "Invalid ID supplied"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Order not found"
+          schema:
+            $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+    put:
+      tags:
+        - "Order"
+      summary: "Amending Order and Cancelling Order"
+      description: "This endpoint is used to amend any existing order or to cancel the order by Id"
+      operationId: "updateOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          description: "ID of order that needs to be fetched"
+          required: true
+          type: "integer"
+          minimum: 1
+          format: "int64"
+        - in: "body"
+          name: "body"
+          description: "Order object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/DetailedOrder"
+      responses:
+        "200":
+          description: "Successfully updated"
+          schema:
+            allOf:
+              - $ref: "#/definitions/DetailedOrder"
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          description: "relation"
+                    example:
+                      - href: "/orders/10001"
+                        rel: "self"
+                      - href: "/ordes/10002"
+                        rel: "next"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid ID supplied"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Order not found"
+          schema:
+            $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - "Order"
+      summary: "Deleting Order"
+      description: "Delete purchase order by Id from the coffee shop"
+      operationId: "deleteOrder"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          description: "ID of the order that needs to be deleted"
+          required: true
+          type: "integer"
+          minimum: 1
+          format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          description: "relation"
+                    example:
+                      - href: "/orders/10001"
+                        rel: "self"
+                      - href: "/orders/10002"
+                        rel: "next"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid ID supplied"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Order not found"
+          schema:
+            $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+  /payments:
+    post:
+      tags:
+        - "Payment"
+      summary: "Creating a Payment"
+      description: "This endpoint is used to create payment of the order at the coffee shop."
+      operationId: "createPayment"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "order placed for purchasing the coffee"
+          required: true
+          schema:
+            $ref: "#/definitions/DetailedPayment"
+      responses:
+        "201":
+          description: "Payment Created"
+          schema:
+            allOf:
+              - $ref: "#/definitions/DetailedPayment"
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          example: "/payments/2002"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          example: "details"
+                          description: "relation"
+                    example:
+                      - href: "/payments"
+                        rel: "self"
+                      - href: "/payments/10001"
+                        rel: "details"
+              - $ref: "#/definitions/Created"
+        "400":
+          description: "Invalid Order"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+    get:
+      tags:
+        - "Payment"
+      summary: "Listing Payments"
+      description: ""
+      operationId: "ListPayments"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "offset"
+          type: "integer"
+          description: "The number of items to skip before starting to collect the result set."
+          minimum: 0
+          default: 0
+        - in: "query"
+          name: "limit"
+          type: "integer"
+          minimum: 0
+          maximum: 100
+          default: 20
+          description: "The number of items to return."
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/ListPayments"
+              - $ref: "#/definitions/Success"
+        "400":
+          description: "Invalid Order"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Unauthorized"
+      security:
+        - api_key: []
+  /payments/{orderId}:
+    get:
+      tags:
+        - "Payment"
+      summary: "Getting Payment Details for an Order by orderId"
+      description: "This endpoint is used to get payment by Id from all the payments of the coffee shop"
+      operationId: "getPaymentById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "orderId"
+          in: "path"
+          description: "ID of payment that needs to be fetched"
+          required: true
+          type: "integer"
+          default: 2002
+          minimum: 1
+          format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            allOf:
+              - $ref: "#/definitions/DetailedPayment"
+              - type: "object"
+                properties:
+                  links:
+                    type: "array"
+                    description: "HATEOAS"
+                    items:
+                      type: "object"
+                      properties:
+                        href:
+                          type: "string"
+                          example: "/payments/10002"
+                          description: "hypertext reference"
+                        rel:
+                          type: "string"
+                          example: "next"
+                          description: "relation"
+                    example:
+                      - href: "/payments/10001"
+                        rel: "self"
+                      - href: "/payments/10002"
+                        rel: "next"
+              - $ref: "#/definitions/Created"
+        "400":
+          description: "Invalid ID supplied"
+          schema:
+            $ref: "#/definitions/Invalid"
+        "404":
+          description: "Order not found"
+          schema:
+            $ref: "#/definitions/NotFound"
+      security:
+        - api_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  ListItems:
+    type: "object"
+    properties:
+      resultSize:
+        type: "integer"
+        format: "int32"
+        example: 20
+        description: "Size of the resultant array"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              description: "relation"
+        example:
+          - href: "/items"
+            rel: "self"
+          - href: "/items?offset=0&limit=20"
+            rel: "alternative"
+          - href: "/items?offset=20&limit=20"
+            rel: "nextPage"
+      result:
+        type: "array"
+        description: "Resultant array"
+        items:
+          $ref: "#/definitions/Item"
+  Item:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int32"
+        example: 1
+        description: "Item Id"
+      name:
+        type: "string"
+        example: "latte"
+        description: "Item name"
+      in_stock:
+        type: "boolean"
+        example: true
+        description: "Availability of the item in the coffee shop"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              description: "relation"
+        example:
+          - href: "/items/1"
+            rel: "self"
+          - href: "/items/2"
+            rel: "next"
+  ListOrders:
+    type: "object"
+    properties:
+      resultSize:
+        type: "integer"
+        format: "int32"
+        example: 20
+        description: "Size of the resultant array"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              description: "relation"
+        example:
+          - href: "/orders"
+            rel: "self"
+          - href: "/orders?offset=0&limit=20"
+            rel: "alternative"
+          - href: "/orders?offset=20&limit=20"
+            rel: "nextPage"
+      result:
+        type: "array"
+        description: "Resultant array"
+        items:
+          $ref: "#/definitions/Order"
+  Order:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 10001
+        description: "Default Order Id"
+      date:
+        type: "string"
+        format: "date-time"
+        example: "2020-10-09T02:04:12.192Z"
+        description: "Date and time of the order"
+      status:
+        type: "string"
+        enum:
+          - "open"
+          - "processing"
+          - "ready"
+          - "cancelled"
+        description: "Order Status"
+      complete:
+        type: "boolean"
+        default: false
+        description: "Order completion status"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              example: "/orders/10001"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              example: "details"
+              description: "relation"
+        example:
+          - href: "/orders/10001"
+            rel: "self"
+          - href: "/orders/10002"
+            rel: "next"
+  ListPayments:
+    type: "object"
+    properties:
+      resultSize:
+        type: "integer"
+        format: "int32"
+        example: 20
+        description: "Size of the resultant array"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              description: "relation"
+        example:
+          - href: "/payments"
+            rel: "self"
+          - href: "/payments?offset=0&limit=20"
+            rel: "alternative"
+          - href: "/payments?offset=20&limit=20"
+            rel: "nextPage"
+      result:
+        type: "array"
+        description: "Resultant array"
+        items:
+          $ref: "#/definitions/Payment"
+  Payment:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 2002
+        description: "Default payment Id"
+      date:
+        type: "string"
+        format: "date-time"
+        example: "2020-10-09T02:04:12.192Z"
+        description: "Date and time of the payment"
+      status:
+        type: "string"
+        enum:
+          - "unpaid"
+          - "processing"
+          - "paid"
+        default: "processing"
+        description: "Payment Status"
+      links:
+        type: "array"
+        description: "HATEOAS"
+        items:
+          type: "object"
+          properties:
+            href:
+              type: "string"
+              description: "hypertext reference"
+            rel:
+              type: "string"
+              description: "relation"
+        example:
+          - href: "/payments/2002"
+            rel: "self"
+          - href: "/payments/2003"
+            rel: "next"
+  DetailedOrder:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 10001
+        description: "Default order Id"
+      items_id:
+        type: "integer"
+        format: "int64"
+        example: 1
+        description: "Default items Id"
+      type:
+        type: "string"
+        enum:
+          - "Cappuccino"
+          - "Latte"
+          - "Hot Chocolate"
+          - "Americano"
+          - "Espresso"
+          - "Doppio"
+          - "Mocha"
+        description: "Order type"
+      add_ons:
+        type: "string"
+        example: "None"
+        description: "Add ons for the order"
+      quantity:
+        type: "integer"
+        format: "int32"
+        example: 2
+        description: "Quantity of the order"
+      total_amount:
+        type: "number"
+        example: 10.5
+        description: "Total amount of the order"
+      date:
+        type: "string"
+        format: "date-time"
+        example: "2020-10-09T02:04:12.192Z"
+        description: "Date and time of the order"
+      special_instructions:
+        type: "string"
+        example: "Extra Sugar"
+        description: "Special instructions for the order"
+      status:
+        type: "string"
+        description: "Order Status"
+        enum:
+          - "open"
+          - "processing"
+          - "cancelled"
+          - "ready"
+      complete:
+        type: "boolean"
+        default: false
+        description: "Order completion status"
+      customer:
+        type: "object"
+        description: "Customer Information"
+        properties:
+          id:
+            type: "integer"
+            format: "int32"
+            example: 1100
+            description: "Default Customer Id"
+          name:
+            type: "string"
+            example: "Mohit Khanna"
+            description: "Customer's Name"
+          contact_number:
+            type: "string"
+            example: "410410410"
+            description: "Customer's contact information"
+          previous_orders:
+            type: "integer"
+            format: "int32"
+            example: 7
+            description: "Number of previous order by the customer"
+          notes:
+            type: "string"
+            example: "gluten-free only"
+            description: "Customer Notes"
+      served_by:
+        type: "string"
+        example: "John Snow"
+        description: "Name of the cashier/waiter"
+  DetailedPayment:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 2002
+        description: "Default payment Id"
+      order_id:
+        type: "integer"
+        format: "int64"
+        example: 10001
+        description: "Order Id"
+      type:
+        type: "string"
+        enum:
+          - "card"
+          - "online"
+          - "cash"
+        description: "Type pf the payment"
+      amount:
+        type: "number"
+        example: 10.5
+        description: "Total amount for the payment"
+      date:
+        type: "string"
+        format: "date-time"
+        example: "2020-10-09T02:04:12.192Z"
+        description: "Date and time of the payment"
+      status:
+        type: "string"
+        enum:
+          - "unpaid"
+          - "processing"
+          - "paid"
+        default: "processing"
+        description: "Payment Status"
+      card_number:
+        type: "string"
+        example: "123 456 7890 0000"
+        description: "card number"
+      bank:
+        type: "string"
+        example: "CommBank"
+        description: "Bank name"
+      name_on_card:
+        type: "string"
+        example: "Mohit Khanna"
+        description: "Name of the card holder"
+  Created:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 201
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Success! Created"
+            description: "Custom message"
+  Success:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 200
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Success!"
+            description: "Custom message"
+  Invalid:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 400
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Invalid"
+            description: "Custom message"
+  Unauthorized:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 401
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Unauthorized"
+            description: "Custom message"
+  NotFound:
+    type: "object"
+    properties:
+      api_response:
+        type: "object"
+        properties:
+          code:
+            type: "integer"
+            format: "int32"
+            example: 404
+            description: "HTTP status code"
+          message:
+            type: "string"
+            example: "Error! Not Found"
+            description: "Custom message"

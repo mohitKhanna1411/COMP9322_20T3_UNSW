@@ -1,0 +1,57 @@
++ how are you
+- I'm good, how are you?\n
+^ Lets book a dental appointment.
+
++ where are you from
+- I'm from Sydney :)\n
+^ All are clinics are in Sydney and nearby suburbs
+
++ (hi|hey|hello)
+- Hello Human! Welcome to our service
+- Hello! Welcome to our service
+- Hi there! Welcome to our service
+- Hey! Welcome to our service
+- Hi! Welcome to our service
+
+
++ my name is *
+- <set name=<formal>>Nice to meet you, <get name>.
+- <set name=<formal>><get name>, nice to meet you.
+- <set name=<formal>>How can I help you today? <get name>.
+
+
+
++ [list|get|all] [available] (dentists|dentist) [available] [list|get|all]
+- listDentists=\n
+^ What more you can ask me:\n
+^ more information about [dentist]\n
+^ get available timeslots for [dentist]
+
++ [list|get|all|more] information about *
+- dentistInfo=<star>\n
+^ What more you can ask me:\n
+^ get available timeslots for [dentist]\n
+^ book an appointment with [dentist] for [timeslot]
+
++ [list|get|all] available timeslots for *
+- timeslots=<star>\n
+^ What more you can ask me:\n
+^ book an appointment with [dentist] for [timeslot]\n
+^ list available dentists
+
++ book [an|a|the] appointment with * for *
+- <set bookdoc=<star1>><set booktime=<star2>><set canceldoc=><set canceltime=>Are you sure you want to book an appointment with Dr. <get bookdoc> on <get booktime>\n
+^ yes or no ?
+
++ cancel [an|a|the] appointment with * for *
+- <set canceldoc=<star1>><set canceltime=<star2>><set bookdoc=><set booktime=>Are you sure you want to cancel the appointment with Dr. <get canceldoc> on <get canceltime>\n
+^ yes or no ?
+
++ (yes|yeah|yup)
+- yes=<get bookdoc>,<get booktime>,<get canceldoc>,<get canceltime>
+
++ (no|nope|nah)
+- <set canceldoc=><set canceltime=><set bookdoc=><set booktime=>All good!\n
+^ What more you can ask me:\n
+^ list available dentists\n
+^ more information about [dentist]
